@@ -1,0 +1,48 @@
+model:
+  base_learning_rate: 4.5e-6
+  target: taming.models.vqgan.Autoencoder
+  params:
+    # No VQ params like embed_dim or n_embed needed
+    ddconfig:
+      double_z: False
+      z_channels: 256
+      resolution: 256
+      in_channels: 3
+      out_ch: 3
+      ch: 128
+      ch_mult: [ 1,1,2,2,4]  # num_down = len(ch_mult)-1
+      num_res_blocks: 2
+      attn_resolutions: [16]
+      dropout: 0.0
+
+    loss_params:
+      lpips_weight: 0.0 # Weight for the LPIPS perceptual loss
+
+
+data:
+  target: main.DataModuleFromConfig # This will be handled by our custom script
+  params:
+    batch_size: 16 # Adjust based on GPU memory
+    num_workers: 8
+    # Train and validation datasets will be set up in the training script
+
+lightning:
+  trainer:
+    accelerator: gpu # Number of GPUs
+    max_epochs: 100 # Adjust as needed
+    accumulate_grad_batches: 1
+  logger:
+    target: pytorch_lightning.loggers.TensorBoardLogger
+    params:
+      save_dir: "logs/"
+      name: "autoencoder_training"
+  callbacks:
+    modelcheckpoint:
+      target: pytorch_lightning.callbacks.ModelCheckpoint
+      params:
+        dirpath: "checkpoints/"
+        filename: "{epoch:06}-{step:09}"
+        verbose: True
+        save_last: True
+        save_top_k: 2
+        monitor: "val/loss_l1" # Monitor total validation loss from VQModel

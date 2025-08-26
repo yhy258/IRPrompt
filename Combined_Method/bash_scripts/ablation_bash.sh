@@ -1,0 +1,15 @@
+CUDA_VISIBLE_DEVICES=5 python dps_promptir_infer_ablation.py \
+  --data_root /home/joon/ImageRestoration-AllInOne/Combined_Method/aoiir/datasets/dataset \
+  --sd_model stabilityai/stable-diffusion-2-1-base \
+  --adapter_ckpt /home/joon/ImageRestoration-AllInOne/Combined_Method/runs/dps_promptir/lightning_logs/version_16/checkpoints/epoch=3-step=42785.ckpt \
+  --subset_ratio 0.0005 \
+  --sampling_method dps \
+  --batch_size 16 \
+  --dps_scales 1.0,3.0,5.0,10.0 \
+  --pixel_dps_scales 0.3,0.5,1.0,3.0,5.0 \
+  --cfgs 4,7.5,10 \
+  --scheduler_types ddim,dpm \
+  --do_cfgs false,true \
+  --steps_list 1000 \
+  --out_dir /home/joon/ImageRestoration-AllInOne/Combined_Method/inference_dps_promptir_ablation \
+  --csv_path results.csv
